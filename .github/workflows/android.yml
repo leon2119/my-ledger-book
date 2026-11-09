@@ -18,25 +18,32 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
-    - name: Install Android SDK Build Tools
+    - name: Move App Files to Web Folder
       run: |
-        sudo apt-get update
-        sudo apt-get install -y android-sdk
+        mkdir www
+        mv index.html www/
 
-    - name: Install Cordova
-      run: npm install -g cordova
+    - name: Install Capacitor Core and CLI
+      run: npm install @capacitor/core @capacitor/cli
 
-    - name: Install Project Dependencies
-      run: npm install
+    - name: Initialize Capacitor Config
+      run: npx cap init LedgerBook com.leon2119.ledgerbook --web-dir=www
 
     - name: Add Android Platform
-      run: cordova platform add android
+      run: |
+        npm install @capacitor/android
+        npx cap add android
 
-    - name: Build APK
-      run: cordova build android --release
+    - name: Sync Web Code into Android Project
+      run: npx cap sync android
+
+    - name: Build Unsigned Release APK
+      run: |
+        cd android
+        ./gradlew assembleRelease
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-release-apk
-        path: platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk
+        path: android/app/build/outputs/apk/release/app-release-unsigned.apk
