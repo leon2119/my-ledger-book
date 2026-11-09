@@ -15,15 +15,12 @@ jobs:
 
     - name: Scaffold Native Android App Project
       run: |
-        # Create full Android directory layouts
         mkdir -p app/src/main/java/com/leon2119/ledgerbook
         mkdir -p app/src/main/res/layout
         mkdir -p app/src/main/assets
 
-        # Move your logic code into the native app asset folder
         mv index.html app/src/main/assets/index.html
 
-        # Generate standard Android project files
         echo "include ':app'" > settings.gradle
 
         cat << 'EOF' > build.gradle
@@ -86,7 +83,7 @@ jobs:
 
         public class MainActivity extends AppCompatActivity {
             @Override
-            protected void Bundle savedInstanceState) {
+            protected void onCreate(Bundle savedInstanceState) {
                 super.onCreate(savedInstanceState);
                 WebView webView = new WebView(this);
                 WebSettings settings = webView.getSettings();
@@ -97,6 +94,9 @@ jobs:
             }
         }
         EOF
+
+    - name: Generate Gradle Wrapper
+      run: gradle wrapper
 
     - name: Compile Native Unsigned Release APK
       run: ./gradlew :app:assembleRelease --no-daemon
