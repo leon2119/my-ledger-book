@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.yourname.ledgerbook" version="1.0.0" xmlns="http://w3.org" xmlns:cdv="http://apache.org">
+    <name>LedgerBook</name>
+    <description>Dynamic Multi-Column Ledger App</description>
+    <author email="dev@yourname.com">Your Name</author>
+    <content src="index.html" />
+    <preference name="AllowInlineMediaPlayback" value="false" />
+    <preference name="BackgroundColor" value="0xffffffff" />
+    <platform name="android">
+        <allow-intent href="market:*" />
+    </platform>
+</widget>
