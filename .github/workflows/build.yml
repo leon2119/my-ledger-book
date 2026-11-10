@@ -1,4 +1,4 @@
-# Fresh Build System Pipeline
+# Deep Clean Manifest Wipe Trigger v9
 name: Build Android APK
 on: [push, workflow_dispatch]
 
@@ -14,18 +14,22 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
-    - name: Scaffold Clean Native Project Structure
+    - name: Absolute Deep Clean Workspace
       run: |
-        # Wipe out any nested ghost folders completely before building
-        rm -rf book
-        rm -rf app settings.gradle build.gradle gradle.properties
-
-        # Create fresh directories in the root path
+        # Search every nested subfolder and vaporize any old AndroidManifest files causing the crash
+        find . -name "AndroidManifest.xml" -delete
+        find . -name "build.gradle" -delete
+        find . -name "settings.gradle" -delete
+        
+        # Clear out historical root folders
+        rm -rf app book myApp platforms components www cordova
+        
+        # Create fresh, pristine directories in the absolute root path
         mkdir -p app/src/main/java/com/leon2119/ledgerbook
         mkdir -p app/src/main/res/layout
         mkdir -p app/src/main/assets
 
-        # Safely locate your app file
+        # Safely locate and move your app file
         if [ -f "index.html" ]; then
           cp index.html app/src/main/assets/index.html
         else
@@ -33,7 +37,6 @@ jobs:
         fi
 
         echo "include ':app'" > settings.gradle
-
         echo "android.useAndroidX=true" > gradle.properties
         echo "android.enableJetifier=true" >> gradle.properties
 
