@@ -1,4 +1,4 @@
-# Force Trigger Run Absolute Path Fix v6
+# Force Trigger Run - Kill Nested Book Folder v7
 name: Build Android APK
 on: [push, workflow_dispatch]
 
@@ -16,7 +16,10 @@ jobs:
 
     - name: Scaffold Clean Native Project Structure
       run: |
-        # Clear out any conflicting folders or historical broken builds
+        # CRITICAL: Delete the hidden nested 'book' directory causing the crash
+        rm -rf book
+        
+        # Clear out any other loose historical configurations in the root path
         rm -rf app settings.gradle build.gradle gradle.properties
 
         # Create fresh, clean directories in the absolute root path
@@ -27,8 +30,6 @@ jobs:
         # Safely locate and copy your app interface file
         if [ -f "index.html" ]; then
           cp index.html app/src/main/assets/index.html
-        elif [ -f "book/index.html" ]; then
-          cp book/index.html app/src/main/assets/index.html
         else
           echo "<html><body><h1>Ledger App</h1></body></html>" > app/src/main/assets/index.html
         fi
