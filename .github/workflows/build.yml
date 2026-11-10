@@ -1,4 +1,4 @@
-# Deep Clean Manifest Wipe Trigger v9
+# Force Trigger Run - Case Insensitive Wipe v10
 name: Build Android APK
 on: [push, workflow_dispatch]
 
@@ -16,12 +16,12 @@ jobs:
 
     - name: Absolute Deep Clean Workspace
       run: |
-        # Search every nested subfolder and vaporize any old AndroidManifest files causing the crash
-        find . -name "AndroidManifest.xml" -delete
-        find . -name "build.gradle" -delete
-        find . -name "settings.gradle" -delete
+        # CRITICAL FIX: Use -iname to catch and delete uppercase 'AndroidManifest.xml' files anywhere
+        find . -iname "androidmanifest.xml" -delete
+        find . -iname "build.gradle" -delete
+        find . -iname "settings.gradle" -delete
         
-        # Clear out historical root folders
+        # Clear out historical conflicting directories completely
         rm -rf app book myApp platforms components www cordova
         
         # Create fresh, pristine directories in the absolute root path
