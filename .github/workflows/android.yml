@@ -23,7 +23,6 @@ jobs:
 
         echo "include ':app'" > settings.gradle
 
-        # Create gradle.properties and enable AndroidX
         echo "android.useAndroidX=true" > gradle.properties
         echo "android.enableJetifier=true" >> gradle.properties
 
@@ -68,7 +67,7 @@ jobs:
         <manifest xmlns:android="http://android.com">
             <uses-permission android:name="android.permission.INTERNET" />
             <application android:label="LedgerBook" android:theme="@style/Theme.AppCompat.Light.NoActionBar" android:hardwareAccelerated="true">
-                <activity android:name=".MainActivity" android:exported="true">
+                <activity android:name="com.leon2119.ledgerbook.MainActivity" android:exported="true">
                     <intent-filter>
                         <action android:name="android.intent.action.MAIN" />
                         <category android:name="android.intent.category.LAUNCHER" />
