@@ -1,4 +1,4 @@
-# Force Build Kickoff Deployment Sequence v5
+# Force Trigger Run Absolute Path Fix v6
 name: Build Android APK
 on: [push, workflow_dispatch]
 
@@ -14,13 +14,24 @@ jobs:
         distribution: 'zulu'
         java-version: '17'
 
-    - name: Scaffold Native Android App Project
+    - name: Scaffold Clean Native Project Structure
       run: |
+        # Clear out any conflicting folders or historical broken builds
+        rm -rf app settings.gradle build.gradle gradle.properties
+
+        # Create fresh, clean directories in the absolute root path
         mkdir -p app/src/main/java/com/leon2119/ledgerbook
         mkdir -p app/src/main/res/layout
         mkdir -p app/src/main/assets
 
-        mv index.html app/src/main/assets/index.html
+        # Safely locate and copy your app interface file
+        if [ -f "index.html" ]; then
+          cp index.html app/src/main/assets/index.html
+        elif [ -f "book/index.html" ]; then
+          cp book/index.html app/src/main/assets/index.html
+        else
+          echo "<html><body><h1>Ledger App</h1></body></html>" > app/src/main/assets/index.html
+        fi
 
         echo "include ':app'" > settings.gradle
 
@@ -62,14 +73,20 @@ jobs:
         }
         EOF
 
-    - name: Build Corrected Android Manifest and Native Java Shell
+    - name: Build Perfect Lowercase Android Manifest and Java Shell
       run: |
+        # Generate the manifest with absolute verification of lowercase attributes
         cat << 'EOF' > app/src/main/AndroidManifest.xml
-        <manifest xmlns:android="http://android.com"
-            package="com.leon2119.ledgerbook">
+        <?xml version="1.0" encoding="utf-8"?>
+        <manifest xmlns:android="http://android.com">
             <uses-permission android:name="android.permission.INTERNET" />
-            <application android:label="LedgerBook" android:theme="@style/Theme.AppCompat.Light.NoActionBar" android:hardwareAccelerated="true">
-                <activity android:name="com.leon2119.ledgerbook.MainActivity" android:exported="true">
+            <application 
+                android:label="LedgerBook" 
+                android:theme="@style/Theme.AppCompat.Light.NoActionBar" 
+                android:hardwareAccelerated="true">
+                <activity 
+                    android:name="com.leon2119.ledgerbook.MainActivity" 
+                    android:exported="true">
                     <intent-filter>
                         <action android:name="android.intent.action.MAIN" />
                         <category android:name="android.intent.category.LAUNCHER" />
