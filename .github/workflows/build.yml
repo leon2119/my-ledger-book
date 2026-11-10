@@ -1,4 +1,4 @@
-# Force Trigger Run - Case Insensitive Wipe v10
+# Direct HTML5 App Packaging
 name: Build Android APK
 on: [push, workflow_dispatch]
 
@@ -8,126 +8,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    - name: Compile HTML to Native Android APK
+      uses: hanno-r/html-to-apk-action@v1
       with:
-        distribution: 'zulu'
-        java-version: '17'
-
-    - name: Absolute Deep Clean Workspace
-      run: |
-        # CRITICAL FIX: Use -iname to catch and delete uppercase 'AndroidManifest.xml' files anywhere
-        find . -iname "androidmanifest.xml" -delete
-        find . -iname "build.gradle" -delete
-        find . -iname "settings.gradle" -delete
-        
-        # Clear out historical conflicting directories completely
-        rm -rf app book myApp platforms components www cordova
-        
-        # Create fresh, pristine directories in the absolute root path
-        mkdir -p app/src/main/java/com/leon2119/ledgerbook
-        mkdir -p app/src/main/res/layout
-        mkdir -p app/src/main/assets
-
-        # Safely locate and move your app file
-        if [ -f "index.html" ]; then
-          cp index.html app/src/main/assets/index.html
-        else
-          echo "<html><body><h1>Ledger App</h1></body></html>" > app/src/main/assets/index.html
-        fi
-
-        echo "include ':app'" > settings.gradle
-        echo "android.useAndroidX=true" > gradle.properties
-        echo "android.enableJetifier=true" >> gradle.properties
-
-        cat << 'EOF' > build.gradle
-        buildscript {
-            repositories { google(); mavenCentral() }
-            dependencies { classpath 'com.android.tools.build:gradle:8.2.1' }
-        }
-        allprojects {
-            repositories { google(); mavenCentral() }
-        }
-        EOF
-
-        cat << 'EOF' > app/build.gradle
-        plugins {
-            id 'com.android.application'
-        }
-        android {
-            namespace 'com.leon2119.ledgerbook'
-            compileSdk 34
-            defaultConfig {
-                applicationId "com.leon2119.ledgerbook"
-                minSdk 24
-                targetSdk 34
-                versionCode 1
-                versionName "1.0"
-            }
-            buildTypes {
-                release {
-                    minifyEnabled false
-                }
-            }
-        }
-        dependencies {
-            implementation 'androidx.appcompat:appcompat:1.6.1'
-        }
-        EOF
-
-    - name: Build Perfect Lowercase Android Manifest and Java Shell
-      run: |
-        cat << 'EOF' > app/src/main/AndroidManifest.xml
-        <?xml version="1.0" encoding="utf-8"?>
-        <manifest xmlns:android="http://android.com">
-            <uses-permission android:name="android.permission.INTERNET" />
-            <application 
-                android:label="LedgerBook" 
-                android:theme="@style/Theme.AppCompat.Light.NoActionBar" 
-                android:hardwareAccelerated="true">
-                <activity 
-                    android:name="com.leon2119.ledgerbook.MainActivity" 
-                    android:exported="true">
-                    <intent-filter>
-                        <action android:name="android.intent.action.MAIN" />
-                        <category android:name="android.intent.category.LAUNCHER" />
-                    </intent-filter>
-                </activity>
-            </application>
-        </manifest>
-        EOF
-
-        cat << 'EOF' > app/src/main/java/com/leon2119/ledgerbook/MainActivity.java
-        package com.leon2119.ledgerbook;
-        import android.os.Bundle;
-        import android.webkit.WebSettings;
-        import android.webkit.WebView;
-        import androidx.appcompat.app.AppCompatActivity;
-
-        public class MainActivity extends AppCompatActivity {
-            @Override
-            protected void onCreate(Bundle savedInstanceState) {
-                super.onCreate(savedInstanceState);
-                WebView webView = new WebView(this);
-                WebSettings settings = webView.getSettings();
-                settings.setJavaScriptEnabled(true);
-                settings.setDomStorageEnabled(true);
-                webView.loadUrl("file:///android_asset/index.html");
-                setContentView(webView);
-            }
-        }
-        EOF
-
-    - name: Generate Gradle Wrapper
-      run: gradle wrapper
-
-    - name: Compile Native Unsigned Release APK
-      env:
-        ANDROID_HOME: /usr/local/lib/android/sdk
-      run: ./gradlew :app:assembleRelease --no-daemon
+        entrypoint: index.html
+        app-name: "LedgerBook"
+        package-id: "com.leon2119.ledgerbook"
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
         name: app-release-apk
-        path: app/build/outputs/apk/release/app-release-unsigned.apk
+        path: app-release-unsigned.apk
